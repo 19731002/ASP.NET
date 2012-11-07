@@ -1,7 +1,5 @@
 ﻿@{
-    var gender ="";
-
-    if(!Request.QueryString["Y1"].IsEmpty())
+    if(!Request.QueryString["Y1"].IsEmpty() && !Request.QueryString["Y2"].IsEmpty())
     {
         var y1 = Request.QueryString["Y1"];
         var m1 = Request.QueryString["M1"];
@@ -16,19 +14,9 @@
         {
             age = age -1;
         }
-    
-        var db = Database.Open("SexPredict");
-        var selectQueryString = "SELECT * FROM SexPredict WHERE Age = @0 AND ConceptionMonth = @1 ORDER BY ID";
-        var row = db.QuerySingle(selectQueryString, age, m2.AsInt());
-        if(row !=null)
-        {
-            gender = row.BabySex;
-        }
-        else
-        {
-            Validation.AddFormError("No movie was selected.");
-        }
-   }
+        
+        Response.Redirect("~/SexPredictResult?M2="+m2+"&Age="+age);
+    }
  }
 <!DOCTYPE html>
 <html>
@@ -57,11 +45,6 @@
       </div>
          <div>    <input type="Submit" value="Submit" /><br/> </div>
    </form>
-
-@if (!Request.QueryString["Y1"].IsEmpty())
-   {
-         <p>It is a @gender!</p>
-    }
  
  </body>
 </html>

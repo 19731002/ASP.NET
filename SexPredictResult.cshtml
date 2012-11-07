@@ -1,0 +1,44 @@
+﻿@{
+    var message ="";
+
+    if(!Request.QueryString["Age"].IsEmpty() && !Request.QueryString["M2"].IsEmpty())
+    {
+        int age = Request.QueryString["Age"].AsInt();
+        var m2 = Request.QueryString["M2"];
+        
+        if(age>45 || age<18)
+        {
+            // message ="";
+        }
+  
+        var db = Database.Open("SexPredict");
+        var selectQueryString = "SELECT * FROM SexPredict WHERE Age = @0 AND ConceptionMonth = @1 ORDER BY ID";
+        var row = db.QuerySingle(selectQueryString, age, m2.AsInt());
+        if(row !=null)
+        {
+            message = "Good news! It is "+row.BabySex+"!";
+        }
+        else
+        {
+        
+        }
+   }
+ }
+
+<!DOCTYPE html>
+<html>
+ <head>
+   <script src="SexPredict.js"></script>
+   <title>Sex Predict Result</title>
+
+ </head>
+ <body>
+   <h1>Sex Predict</h1>
+ 
+@if (!Request.QueryString["Age"].IsEmpty())
+   {
+         <p>@message</p>
+    }
+ 
+ </body>
+</html>
