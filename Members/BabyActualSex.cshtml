@@ -1,0 +1,52 @@
+﻿@{
+    if(!Request.QueryString["Y1"].IsEmpty() && !Request.QueryString["Y2"].IsEmpty())
+    {
+        var y1 = Request.QueryString["Y1"];
+        var m1 = Request.QueryString["M1"];
+        var d1 = Request.QueryString["D1"];
+        var y2 = Request.QueryString["Y2"];
+        var m2 = Request.QueryString["M2"];
+        var d2 = Request.QueryString["D2"];
+
+        int age = y2.AsInt() - y1.AsInt();
+     
+        if(( m2.AsInt() < m1.AsInt()) || ((m2.AsInt() == m1.AsInt()) && (d2.AsInt() < d1.AsInt())))
+        {
+            age = age -1;
+        }
+        
+        Response.Redirect("~/SexPredictResult?M2="+m2+"&Age="+age);
+    }
+ }
+<!DOCTYPE html>
+<html>
+ <head>
+   <script src="SexPredict.js"></script>
+   <title>Actual Baby Sex</title>
+
+ </head>
+ <body>
+   <h1>Input Baby Actual Sex</h1>
+     <form method="post">
+      <div>
+        <label for="Woman's Birth Year">Woman's Birth Year</label>
+        <select id="tYEAR" name="Y1" size="1" onChange="createSelect(0, 'tYEAR', 'tMON', 'tDAY')"></select> 
+		<select id="tMON" name="M1" size ="1" onChange="createSelect(0, 'tYEAR', 'tMON', 'tDAY');"></select> 
+		<select id="tDAY" name="D1" size ="1" ></select> 
+		<script type="text/javascript">createSelect(1, "tYEAR", "tMON", "tDAY");</script> 
+      </div>
+         </br>
+      <div>
+        <label for="  Conception  Year">Conception  Year</label>
+        <select id="tYEAR2" name="Y2" size="1" onChange="createSelect(0, 'tYEAR2', 'tMON2', 'tDAY2')"></select> 
+		<select id="tMON2" name="M2" size="1" onChange="createSelect(0, 'tYEAR2', 'tMON2', 'tDAY2');"></select> 
+		<select id="tDAY2" name="D2" size="1" ></select> 
+		<script type="text/javascript">createSelect(1, "tYEAR2", "tMON2", "tDAY2");</script> 
+      </div>
+
+      <div> </div>
+         <div>    <input type="Submit" value="Submit" /><br/> </div>
+   </form>
+ 
+ </body>
+</html>
