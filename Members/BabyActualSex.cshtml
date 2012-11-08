@@ -1,12 +1,13 @@
 ﻿@{
-    if(!Request.QueryString["Y1"].IsEmpty() && !Request.QueryString["Y2"].IsEmpty())
+    var errorMessage = "";
+    if(!Request.Form["Y1"].IsEmpty() && !Request.Form["Y2"].IsEmpty())
     {
-        var y1 = Request.QueryString["Y1"];
-        var m1 = Request.QueryString["M1"];
-        var d1 = Request.QueryString["D1"];
-        var y2 = Request.QueryString["Y2"];
-        var m2 = Request.QueryString["M2"];
-        var d2 = Request.QueryString["D2"];
+        var y1 = Request.Form["Y1"];
+        var m1 = Request.Form["M1"];
+        var d1 = Request.Form["D1"];
+        var y2 = Request.Form["Y2"];
+        var m2 = Request.Form["M2"];
+        var d2 = Request.Form["D2"];
 
         int age = y2.AsInt() - y1.AsInt();
      
@@ -15,18 +16,69 @@
             age = age -1;
         }
         
-        Response.Redirect("~/SexPredictResult?M2="+m2+"&Age="+age);
+        if(age>45 || age<18)
+        {
+            errorMessage = String.Format("The age {0} is out of range: 18 - 45", age);
+        }
+        else if( m2.AsInt() > 12 || m2.AsInt() < 1)
+        {
+            errorMessage = String.Format("The Conception month {0} is out of range: 1 - 12", m2.AsInt());
+        }
+        else
+        {
+            var db = Database.Open("SexPredict");
+            var selectCommand = "SELECT * FROM SexPredict WHERE Age = @0 AND ConceptionMonth = @1";
+            var row = db.QuerySingle(selectCommand, age, m2.AsInt());
+            var id = 0;
+            var gender = "";
+            int boyCount=0;
+            int girlCount=0;
+             var updateCommand = "";
+
+            if(row !=null)
+            {
+                id = row.ID;
+                gender = row.BabySex;
+                boyCount = row.BoyCount;
+                girlCount = row.GirlCount;
+                if(gender == "boy")
+                {
+                    boyCount++;
+                    updateCommand = "UPDATE SexPredict SET BoyCount=@0 WHERE ID=@1";
+                    db.Execute(updateCommand, id, boyCount);
+                }
+                else
+                {
+                    girlCount++;
+                    updateCommand = "UPDATE SexPredict SET GirlCount=@0 WHERE ID=@1";
+                      db.Execute(updateCommand, id, girlCount);
+                }
+                errorMessage = String.Format("Update successfully!");
+            }
+            else
+            {
+                errorMessage = String.Format("no entry found");
+            }  
+               
+        }
     }
  }
 <!DOCTYPE html>
 <html>
  <head>
-   <script src="SexPredict.js"></script>
+   <script src="~/SexPredict.js"></script>
    <title>Actual Baby Sex</title>
 
  </head>
  <body>
    <h1>Input Baby Actual Sex</h1>
+
+   <p>
+        @if(errorMessage != ""){
+            <span class="errorMessage">@Html.Raw(errorMessage)</span>
+        }
+   </p>
+
      <form method="post">
       <div>
         <label for="Woman's Birth Year">Woman's Birth Year</label>
@@ -44,7 +96,12 @@
 		<script type="text/javascript">createSelect(1, "tYEAR2", "tMON2", "tDAY2");</script> 
       </div>
 
-      <div> </div>
+      <div>
+          <select id="gender" name="Gen" size="1">
+              <option value="boy">Boy</option>
+              <option value="girl">Girl</option>
+            </select>
+      </div>
          <div>    <input type="Submit" value="Submit" /><br/> </div>
    </form>
  
